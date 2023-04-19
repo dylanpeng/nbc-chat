@@ -5,6 +5,7 @@ import (
 	"github.com/dylanpeng/nbc-chat/common"
 	"github.com/dylanpeng/nbc-chat/gateway/config"
 	"github.com/dylanpeng/nbc-chat/gateway/router"
+	"github.com/dylanpeng/nbc-chat/gateway/util"
 	"log"
 	"os"
 	"os/signal"
@@ -37,6 +38,11 @@ func main() {
 		_ = common.Logger.Sync()
 		_ = common.Logger.Close()
 	}()
+
+	// init chatGPT client
+	if err := util.InitChatGPTClient(config.GetConfig().ChatGPT); err != nil {
+		log.Fatalf("Fatal Error: can't initialize ChatGPT client!!!\n%s", err)
+	}
 
 	// start http server
 	common.InitHttpServer(router.Router)

@@ -9,6 +9,7 @@ const (
 	CodeForbidden
 	CodeUnauthorized
 	CodeNoPermission
+	CodeCallHttpFailed
 )
 
 const (
@@ -34,13 +35,14 @@ const (
 )
 
 var Desces = map[int]string{
-	CodeRetSuccess:    "success",
-	CodeInternalError: "server internal error",
-	CodeQueryFailed:   "data query failed",
-	CodeUnableConnect: "unable to connect to server",
-	CodeForbidden:     "access denied",
-	CodeUnauthorized:  "unauthorized",
-	CodeNoPermission:  "no permission",
+	CodeRetSuccess:     "success",
+	CodeInternalError:  "server internal error",
+	CodeQueryFailed:    "data query failed",
+	CodeUnableConnect:  "unable to connect to server",
+	CodeForbidden:      "access denied",
+	CodeUnauthorized:   "unauthorized",
+	CodeNoPermission:   "no permission",
+	CodeCallHttpFailed: "call http failed",
 
 	CodeInvalidParams:    "invalid parameter",
 	CodeConvertFailed:    "convert data failed",

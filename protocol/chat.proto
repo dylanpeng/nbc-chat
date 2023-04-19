@@ -3,13 +3,49 @@ syntax = "proto3";
 package chat;
 option go_package = "lib/proto/chat";
 
-message CompletionReq{
-    string model = 1;
+//HTTP POST request: /chatgpt/chat
+message ChatReq{
+    string content = 1;
 }
 
+//HTTP POST request: /chatgpt/chat
+message ChatRsp{
+    // response code
+    int64 code = 1;
+    // response message
+    string message = 2;
+
+    // data
+    ChatResult data = 3;
+}
+
+message ChatResult{
+    string id = 1;
+    string object = 2;
+    int64 created = 3;
+    string model = 4;
+    Usage usage = 5;
+    string message = 6;
+}
+
+message Usage{
+    int32 prompt_tokens = 1;
+    int32 completion_tokens = 2;
+    int32 total_tokens = 3;
+}
+
+//HTTP POST request: /chatgpt/completion
+message CompletionReq{
+    string prompt = 1;
+}
+
+//HTTP POST request: /chatgpt/completion
 message CompletionRsp{
     // response code
     int64 code = 1;
     // response message
     string message = 2;
+
+    // data
+    ChatResult data = 3;
 }

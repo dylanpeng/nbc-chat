@@ -3,12 +3,14 @@ package config
 import (
 	"github.com/BurntSushi/toml"
 	oConf "github.com/dylanpeng/nbc-chat/common/config"
+	"github.com/dylanpeng/nbc-chat/lib/chatgpt"
 )
 
 var conf *Config
 
 type Config struct {
 	*oConf.Config
+	ChatGPT *chatgpt.Config `toml:"chatgpt" json:"chatgpt"`
 }
 
 func Init(file string) error {

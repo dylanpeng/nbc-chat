@@ -1,0 +1,11 @@
+
+[chatgpt]
+max_token           = 2048
+temperature         = 0.6
+top_p               = 1
+n                   = 1
+presence_penalty    = 0
+frequency_penalty   = 0
+user                = ""
+proxy_url           = "http://127.0.0.1:58591"
+api_key             = "your api key"

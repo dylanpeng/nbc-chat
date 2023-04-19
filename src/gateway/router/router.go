@@ -22,8 +22,11 @@ func (r *router) RegHttpHandler(app *gin.Engine) {
 	app.Use(middleware.CrossDomain)
 	app.Use(middleware.Trace)
 
-	chatGroup := app.Group("/chat")
+	chatGroup := app.Group("/chatgpt")
 	{
 		chatGroup.POST("/completion", control.Chat.Completion)
+		chatGroup.POST("/chat", control.Chat.Chat)
+		chatGroup.GET("/google", control.GoogleProxy.Google)
+		chatGroup.GET("/google/no-proxy", control.GoogleProxy.GoogleNoProxy)
 	}
 }
