@@ -8,6 +8,7 @@ require (
 	github.com/ethereum/go-ethereum v1.11.5
 	github.com/gin-gonic/gin v1.9.0
 	github.com/google/uuid v1.3.0
+	github.com/sashabaranov/go-openai v1.8.0
 	google.golang.org/protobuf v1.30.0
 )
 
@@ -46,7 +47,6 @@ require (
 	github.com/pelletier/go-toml/v2 v2.0.7 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/redis/go-redis/v9 v9.0.2 // indirect
-	github.com/sashabaranov/go-openai v1.8.0 // indirect
 	github.com/shirou/gopsutil v3.21.4-0.20210419000835-c7a38de76ee5+incompatible // indirect
 	github.com/tklauser/go-sysconf v0.3.5 // indirect
 	github.com/tklauser/numcpus v0.2.2 // indirect

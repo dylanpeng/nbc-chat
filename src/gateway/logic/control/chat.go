@@ -1,6 +1,5 @@
 package control
 
-import "C"
 import (
 	"github.com/dylanpeng/nbc-chat/common"
 	"github.com/dylanpeng/nbc-chat/common/consts"
