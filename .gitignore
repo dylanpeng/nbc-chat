@@ -1,0 +1,8 @@
+src/go.sum
+src/logs
+pkg/
+/logs/
+/lib/proto/
+/lbin/
+/bin/
+/script/

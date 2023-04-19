@@ -1,0 +1,17 @@
+
+[app]
+name          = "gateway"
+project       = "web3"
+env           = "prod"
+debug         = false
+http_code     = "json"
+tcp_code      = "protobuf"
+
+[server]
+bind_interface = ""
+
+[server.http]
+host           = "0.0.0.0"
+port           = 10679
+gzip           = true
+pprof          = true
