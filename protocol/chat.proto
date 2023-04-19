@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package chat;
+option go_package = "lib/proto/chat";
+
+message CompletionReq{
+    string model = 1;
+}
+
+message CompletionRsp{
+    // response code
+    int64 code = 1;
+    // response message
+    string message = 2;
+}

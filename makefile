@@ -29,9 +29,9 @@ p:
 	rm -rf src/lib/proto/*
 
 	cd src; protoc -I ../protocol --go_out=. common.proto; cd -
-	cd src; protoc -I ../protocol --go_out=. blockchain.proto; cd -
+	cd src; protoc -I ../protocol --go_out=. chat.proto; cd -
 
-	ls src/lib/proto/*/*.pb.go | xargs sed -i -e "s@\"lib/proto/@\"confuse/lib/proto/@"
+	ls src/lib/proto/*/*.pb.go | xargs sed -i -e "s@\"lib/proto/@\"github.com/dylanpeng/nbc-chat/lib/proto/@"
 	ls src/lib/proto/*/*.pb.go | xargs sed -i -e "s/,omitempty//"
 	ls src/lib/proto/*/*.pb.go | xargs sed -i -e "s/json:\"\([a-zA-Z_-]*\)\"/json:\"\1\" form:\"\1\"/g"
 	ls src/lib/proto/*/*.pb.go | xargs sed -i -e "/force omitempty/{n;s/json:\"\([a-zA-Z_-]*\)\"/json:\"\1,omitempty\"/g;}"

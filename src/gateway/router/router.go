@@ -4,6 +4,7 @@ import (
 	"github.com/dylanpeng/nbc-chat/common"
 	ctrl "github.com/dylanpeng/nbc-chat/common/control"
 	"github.com/dylanpeng/nbc-chat/common/middleware"
+	"github.com/dylanpeng/nbc-chat/gateway/logic/control"
 	"github.com/gin-gonic/gin"
 )
 
@@ -20,4 +21,9 @@ func (r *router) RegHttpHandler(app *gin.Engine) {
 	app.Use(middleware.CheckEncoding)
 	app.Use(middleware.CrossDomain)
 	app.Use(middleware.Trace)
+
+	chatGroup := app.Group("/chat")
+	{
+		chatGroup.POST("/completion", control.Chat.Completion)
+	}
 }

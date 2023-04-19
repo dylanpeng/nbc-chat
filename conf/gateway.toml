@@ -1,7 +1,7 @@
 
 [app]
 name          = "gateway"
-project       = "web3"
+project       = "nbc-chat"
 env           = "prod"
 debug         = false
 http_code     = "json"
@@ -12,6 +12,6 @@ bind_interface = ""
 
 [server.http]
 host           = "0.0.0.0"
-port           = 10679
+port           = 10800
 gzip           = true
 pprof          = true
