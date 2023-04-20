@@ -26,6 +26,9 @@ func (r *router) RegHttpHandler(app *gin.Engine) {
 	{
 		chatGroup.POST("/completion", control.Chat.Completion)
 		chatGroup.POST("/chat", control.Chat.Chat)
+		chatGroup.GET("/models/list", control.Chat.ListModels)
+		chatGroup.POST("/edits", control.Chat.Edits)
+		chatGroup.POST("/image/create", control.Chat.CreateImage)
 		chatGroup.GET("/google", control.GoogleProxy.Google)
 		chatGroup.GET("/google/no-proxy", control.GoogleProxy.GoogleNoProxy)
 	}

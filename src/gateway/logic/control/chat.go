@@ -4,7 +4,9 @@ import (
 	"github.com/dylanpeng/nbc-chat/common"
 	"github.com/dylanpeng/nbc-chat/common/consts"
 	ctrl "github.com/dylanpeng/nbc-chat/common/control"
+	"github.com/dylanpeng/nbc-chat/common/exception"
 	"github.com/dylanpeng/nbc-chat/gateway/logic/service"
+	"github.com/dylanpeng/nbc-chat/gateway/util"
 	"github.com/dylanpeng/nbc-chat/lib/proto/chat"
 	"github.com/gin-gonic/gin"
 )
@@ -89,4 +91,74 @@ func (c *chatCtrl) Completion(ctx *gin.Context) {
 	}
 
 	ctrl.SendRsp(ctx, rsp)
+}
+
+func (c *chatCtrl) ListModels(ctx *gin.Context) {
+	response, e := util.ChatGPTClient.ListModels(ctx)
+
+	if e != nil {
+		err := exception.New(exception.CodeQueryFailed)
+		common.Logger.Infof("ListModels failed. | err: %s", e)
+		ctrl.Exception(ctx, err)
+		return
+	}
+
+	ctrl.SendRsp(ctx, response)
+}
+
+func (c *chatCtrl) Edits(ctx *gin.Context) {
+	req := &chat.EditsReq{}
+
+	if !ctrl.DecodeReq(ctx, req) {
+		return
+	}
+
+	if !ctrl.ParamAssert(ctx, req, req.Input == "" || req.Instruction == "") {
+		return
+	}
+
+	modelType := "test"
+	if req.ModelType == chat.EditsModelType_CODE {
+		modelType = "code"
+	}
+
+	response, e := util.ChatGPTClient.Edits(ctx, req.Input, req.Instruction, modelType)
+
+	if e != nil {
+		err := exception.New(exception.CodeQueryFailed)
+		common.Logger.Infof("ListModels failed. | err: %s", e)
+		ctrl.Exception(ctx, err)
+		return
+	}
+
+	ctrl.SendRsp(ctx, response)
+}
+
+func (c *chatCtrl) CreateImage(ctx *gin.Context) {
+	req := &chat.CreateImageReq{}
+
+	if !ctrl.DecodeReq(ctx, req) {
+		return
+	}
+
+	if !ctrl.ParamAssert(ctx, req, req.Prompt == "") {
+		return
+	}
+
+	response, e := util.ChatGPTClient.CreateImage(ctx, req.Prompt, req.Size, req.Format)
+
+	if e != nil {
+		err := exception.New(exception.CodeQueryFailed)
+		common.Logger.Infof("CreateImage failed. | err: %s", e)
+		ctrl.Exception(ctx, err)
+		return
+	}
+
+	if req.Format == consts.ChatImageFormatTypeJson {
+		service.Images.SaveImageWithBase64Json("./images", response.Data[0].B64JSON)
+	} else {
+		service.Images.SaveImageWithUrl("./images", response.Data[0].URL)
+	}
+
+	ctrl.SendRsp(ctx, response)
 }
