@@ -104,9 +104,8 @@ func (c *chatCtrl) ListModels(ctx *gin.Context) {
 	response, e := util.ChatGPTClient.ListModels(ctx)
 
 	if e != nil {
-		err := exception.New(exception.CodeQueryFailed)
 		common.Logger.Infof("ListModels failed. | err: %s", e)
-		ctrl.Exception(ctx, err)
+		ctrl.Exception(ctx, exception.New(exception.CodeQueryFailed))
 		return
 	}
 
@@ -132,9 +131,8 @@ func (c *chatCtrl) Edits(ctx *gin.Context) {
 	response, e := util.ChatGPTClient.Edits(ctx, req.Input, req.Instruction, modelType)
 
 	if e != nil {
-		err := exception.New(exception.CodeQueryFailed)
 		common.Logger.Infof("ListModels failed. | err: %s", e)
-		ctrl.Exception(ctx, err)
+		ctrl.Exception(ctx, exception.New(exception.CodeQueryFailed))
 		return
 	}
 
@@ -155,9 +153,8 @@ func (c *chatCtrl) CreateImage(ctx *gin.Context) {
 	response, e := util.ChatGPTClient.CreateImage(ctx, req.Prompt, req.Size, req.Format)
 
 	if e != nil {
-		err := exception.New(exception.CodeQueryFailed)
 		common.Logger.Infof("CreateImage failed. | err: %s", e)
-		ctrl.Exception(ctx, err)
+		ctrl.Exception(ctx, exception.New(exception.CodeQueryFailed))
 		return
 	}
 
@@ -173,9 +170,8 @@ func (c *chatCtrl) CreateImage(ctx *gin.Context) {
 func (c *chatCtrl) EditImage(ctx *gin.Context) {
 	prompt, exists := ctx.GetPostForm("prompt")
 	if !exists || prompt == "" {
-		err := exception.New(exception.CodeInvalidParams)
 		common.Logger.Infof("EditImage prompt can't be nil.")
-		ctrl.Exception(ctx, err)
+		ctrl.Exception(ctx, exception.New(exception.CodeInvalidParams))
 		return
 	}
 
@@ -183,9 +179,8 @@ func (c *chatCtrl) EditImage(ctx *gin.Context) {
 
 	fileHeader, exists := ctx.Get(consts.CtxValueImage)
 	if !exists {
-		err := exception.New(exception.CodeQueryFailed)
 		common.Logger.Infof("EditImage no image failed.")
-		ctrl.Exception(ctx, err)
+		ctrl.Exception(ctx, exception.New(exception.CodeQueryFailed))
 		return
 	}
 
@@ -194,43 +189,40 @@ func (c *chatCtrl) EditImage(ctx *gin.Context) {
 
 	file, e := fileHeader.(*multipart.FileHeader).Open()
 	if e != nil {
-		err := exception.New(exception.CodeQueryFailed)
 		common.Logger.Infof("EditImage Open failed. | err: %s", e)
-		ctrl.Exception(ctx, err)
+		ctrl.Exception(ctx, exception.New(exception.CodeQueryFailed))
 		return
 	}
 
+	defer file.Close()
+
 	imageFile, e := png.Decode(bufio.NewReader(file))
 
-	m := image.NewRGBA(image.Rect(0, 0, imageFile.Bounds().Max.X/3, imageFile.Bounds().Max.Y/3))
-	draw.Draw(imageFile.(draw.Image), image.Rect(imageFile.Bounds().Max.X/3, imageFile.Bounds().Max.Y/3, imageFile.Bounds().Max.X/3*2, imageFile.Bounds().Max.Y/3*2), m, image.ZP, draw.Src)
+	m := image.NewRGBA(image.Rect(0, 0, imageFile.Bounds().Max.X/2, imageFile.Bounds().Max.Y/2))
+	draw.Draw(imageFile.(draw.Image), image.Rect(imageFile.Bounds().Max.X/4, imageFile.Bounds().Max.Y/4, imageFile.Bounds().Max.X/4*3, imageFile.Bounds().Max.Y/4*3), m, image.ZP, draw.Src)
 
 	maskFilePath := "./images/" + uuid.New().String() + ".png"
 	maskFile, e := os.Create(maskFilePath)
 	if e != nil {
-		err := exception.New(exception.CodeQueryFailed)
 		common.Logger.Infof("EditImage Create failed. | err: %s", e)
-		ctrl.Exception(ctx, err)
+		ctrl.Exception(ctx, exception.New(exception.CodeQueryFailed))
 		return
 	}
+
+	defer maskFile.Close()
 
 	e = png.Encode(maskFile, imageFile)
 	if e != nil {
-		err := exception.New(exception.CodeQueryFailed)
 		common.Logger.Infof("EditImage Encode failed. | err: %s", e)
-		ctrl.Exception(ctx, err)
+		ctrl.Exception(ctx, exception.New(exception.CodeQueryFailed))
 		return
 	}
-
-	file.Close()
-	maskFile.Close()
 
 	response, e := util.ChatGPTClient.EditImage(ctx, imageFilePath, maskFilePath, prompt, size)
 
 	if e != nil {
-		err := exception.New(exception.CodeQueryFailed)
 		common.Logger.Infof("CreateImage failed. | err: %s", e)
-		ctrl.Exception(ctx, err)
+		ctrl.Exception(ctx, exception.New(exception.CodeQueryFailed))
 		return
 	}
 
@@ -242,52 +234,19 @@ func (c *chatCtrl) EditImage(ctx *gin.Context) {
 }
 
 func (c *chatCtrl) VariationImage(ctx *gin.Context) {
-	prompt, exists := ctx.GetPostForm("prompt")
-	if !exists || prompt == "" {
-		err := exception.New(exception.CodeInvalidParams)
-		common.Logger.Infof("EditImage prompt can't be nil.")
-		ctrl.Exception(ctx, err)
-		return
-	}
-
 	size, _ := ctx.GetPostForm("size")
-
 	fileHeader, exists := ctx.Get(consts.CtxValueImage)
+
 	if !exists {
-		err := exception.New(exception.CodeQueryFailed)
 		common.Logger.Infof("EditImage no image failed.")
-		ctrl.Exception(ctx, err)
+		ctrl.Exception(ctx, exception.New(exception.CodeQueryFailed))
 		return
 	}
 
-	file, exists := fileHeader.(*multipart.FileHeader)
-	if !exists {
-		err := exception.New(exception.CodeQueryFailed)
-		common.Logger.Infof("EditImage Open failed.")
-		ctrl.Exception(ctx, err)
-		return
-	}
+	imageFilePath := "./images/" + uuid.New().String() + ".png"
+	ctx.SaveUploadedFile(fileHeader.(*multipart.FileHeader), imageFilePath)
 
-	filePath := "./images/" + uuid.New().String() + ".png"
-	e := ctx.SaveUploadedFile(file, filePath)
-	if e != nil {
-		err := exception.New(exception.CodeQueryFailed)
-		common.Logger.Infof("EditImage SaveUploadedFile failed. | err: %s", e)
-		ctrl.Exception(ctx, err)
-		return
-	}
-
-	osFile, e := os.Open(filePath)
-	if e != nil {
-		err := exception.New(exception.CodeQueryFailed)
-		common.Logger.Infof("EditImage Open failed. | err: %s", e)
-		ctrl.Exception(ctx, err)
-		return
-	}
-
-	defer osFile.Close()
-
-	response, e := util.ChatGPTClient.VariationImage(ctx, osFile, size)
+	response, e := util.ChatGPTClient.VariationImage(ctx, imageFilePath, size)
 
 	if e != nil {
 		err := exception.New(exception.CodeQueryFailed)

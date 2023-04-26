@@ -157,8 +157,9 @@ func (c *Client) EditImage(ctx context.Context, imageFilePath, maskPath, prompt,
 	conf := c.conf
 
 	imageFile, _ := os.Open(imageFilePath)
-	mask, _ := os.Open(maskPath)
 	defer imageFile.Close()
+
+	mask, _ := os.Open(maskPath)
 	defer mask.Close()
 
 	req := openai.ImageEditRequest{
@@ -174,11 +175,14 @@ func (c *Client) EditImage(ctx context.Context, imageFilePath, maskPath, prompt,
 	return
 }
 
-func (c *Client) VariationImage(ctx context.Context, image *os.File, size string) (rsp openai.ImageResponse, err error) {
+func (c *Client) VariationImage(ctx context.Context, imageFilePath string, size string) (rsp openai.ImageResponse, err error) {
 	conf := c.conf
 
+	imageFile, _ := os.Open(imageFilePath)
+	defer imageFile.Close()
+
 	req := openai.ImageVariRequest{
-		Image: image,
+		Image: imageFile,
 		N:     conf.N,
 		Size:  c.getImageSize(size),
 	}
