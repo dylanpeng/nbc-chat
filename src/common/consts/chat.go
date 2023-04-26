@@ -2,5 +2,5 @@ package consts
 
 const (
 	ChatImageFormatTypeUrl  = "url"
-	ChatImageFormatTypeJson = "json"
+	ChatImageFormatTypeJson = "base64"
 )

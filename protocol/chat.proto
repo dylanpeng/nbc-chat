@@ -73,6 +73,22 @@ message CreateImageReq{
     // "small":256*256 "middle":512*512 "big":1024*1024
     string size = 2;
 
-    // "url" or "json"
+    // "url" or "base64"
     string format = 3;
+}
+
+//HTTP POST request: /chatgpt/image/edit
+message EditImageReq{
+    string prompt = 1;
+
+    // "small":256*256 "middle":512*512 "big":1024*1024
+    string size = 2;
+}
+
+//HTTP POST request: /chatgpt/image/variation
+message VariationImageReq{
+    string prompt = 1;
+
+    // "small":256*256 "middle":512*512 "big":1024*1024
+    string size = 2;
 }

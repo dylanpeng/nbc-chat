@@ -1,6 +1,7 @@
 package control
 
 import (
+	"bufio"
 	"github.com/dylanpeng/nbc-chat/common"
 	"github.com/dylanpeng/nbc-chat/common/consts"
 	ctrl "github.com/dylanpeng/nbc-chat/common/control"
@@ -9,6 +10,12 @@ import (
 	"github.com/dylanpeng/nbc-chat/gateway/util"
 	"github.com/dylanpeng/nbc-chat/lib/proto/chat"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
+	"image"
+	"image/draw"
+	"image/png"
+	"mime/multipart"
+	"os"
 )
 
 var Chat = &chatCtrl{}
@@ -161,4 +168,147 @@ func (c *chatCtrl) CreateImage(ctx *gin.Context) {
 	}
 
 	ctrl.SendRsp(ctx, response)
+}
+
+func (c *chatCtrl) EditImage(ctx *gin.Context) {
+	prompt, exists := ctx.GetPostForm("prompt")
+	if !exists || prompt == "" {
+		err := exception.New(exception.CodeInvalidParams)
+		common.Logger.Infof("EditImage prompt can't be nil.")
+		ctrl.Exception(ctx, err)
+		return
+	}
+
+	size, _ := ctx.GetPostForm("size")
+
+	fileHeader, exists := ctx.Get(consts.CtxValueImage)
+	if !exists {
+		err := exception.New(exception.CodeQueryFailed)
+		common.Logger.Infof("EditImage no image failed.")
+		ctrl.Exception(ctx, err)
+		return
+	}
+
+	imageFilePath := "./images/" + uuid.New().String() + ".png"
+	ctx.SaveUploadedFile(fileHeader.(*multipart.FileHeader), imageFilePath)
+
+	file, e := fileHeader.(*multipart.FileHeader).Open()
+	if e != nil {
+		err := exception.New(exception.CodeQueryFailed)
+		common.Logger.Infof("EditImage Open failed. | err: %s", e)
+		ctrl.Exception(ctx, err)
+		return
+	}
+
+	imageFile, e := png.Decode(bufio.NewReader(file))
+
+	m := image.NewRGBA(image.Rect(0, 0, imageFile.Bounds().Max.X/3, imageFile.Bounds().Max.Y/3))
+	draw.Draw(imageFile.(draw.Image), image.Rect(imageFile.Bounds().Max.X/3, imageFile.Bounds().Max.Y/3, imageFile.Bounds().Max.X/3*2, imageFile.Bounds().Max.Y/3*2), m, image.ZP, draw.Src)
+
+	maskFilePath := "./images/" + uuid.New().String() + ".png"
+	maskFile, e := os.Create(maskFilePath)
+	if e != nil {
+		err := exception.New(exception.CodeQueryFailed)
+		common.Logger.Infof("EditImage Create failed. | err: %s", e)
+		ctrl.Exception(ctx, err)
+		return
+	}
+
+	e = png.Encode(maskFile, imageFile)
+	if e != nil {
+		err := exception.New(exception.CodeQueryFailed)
+		common.Logger.Infof("EditImage Encode failed. | err: %s", e)
+		ctrl.Exception(ctx, err)
+		return
+	}
+
+	file.Close()
+	maskFile.Close()
+
+	response, e := util.ChatGPTClient.EditImage(ctx, imageFilePath, maskFilePath, prompt, size)
+
+	if e != nil {
+		err := exception.New(exception.CodeQueryFailed)
+		common.Logger.Infof("CreateImage failed. | err: %s", e)
+		ctrl.Exception(ctx, err)
+		return
+	}
+
+	if len(response.Data) > 0 && response.Data[0].URL != "" {
+		service.Images.SaveImageWithUrl("./images", response.Data[0].URL)
+	}
+
+	ctrl.SendRsp(ctx, response)
+}
+
+func (c *chatCtrl) VariationImage(ctx *gin.Context) {
+	prompt, exists := ctx.GetPostForm("prompt")
+	if !exists || prompt == "" {
+		err := exception.New(exception.CodeInvalidParams)
+		common.Logger.Infof("EditImage prompt can't be nil.")
+		ctrl.Exception(ctx, err)
+		return
+	}
+
+	size, _ := ctx.GetPostForm("size")
+
+	fileHeader, exists := ctx.Get(consts.CtxValueImage)
+	if !exists {
+		err := exception.New(exception.CodeQueryFailed)
+		common.Logger.Infof("EditImage no image failed.")
+		ctrl.Exception(ctx, err)
+		return
+	}
+
+	file, exists := fileHeader.(*multipart.FileHeader)
+	if !exists {
+		err := exception.New(exception.CodeQueryFailed)
+		common.Logger.Infof("EditImage Open failed.")
+		ctrl.Exception(ctx, err)
+		return
+	}
+
+	filePath := "./images/" + uuid.New().String() + ".png"
+	e := ctx.SaveUploadedFile(file, filePath)
+	if e != nil {
+		err := exception.New(exception.CodeQueryFailed)
+		common.Logger.Infof("EditImage SaveUploadedFile failed. | err: %s", e)
+		ctrl.Exception(ctx, err)
+		return
+	}
+
+	osFile, e := os.Open(filePath)
+	if e != nil {
+		err := exception.New(exception.CodeQueryFailed)
+		common.Logger.Infof("EditImage Open failed. | err: %s", e)
+		ctrl.Exception(ctx, err)
+		return
+	}
+
+	defer osFile.Close()
+
+	response, e := util.ChatGPTClient.VariationImage(ctx, osFile, size)
+
+	if e != nil {
+		err := exception.New(exception.CodeQueryFailed)
+		common.Logger.Infof("CreateImage failed. | err: %s", e)
+		ctrl.Exception(ctx, err)
+		return
+	}
+
+	if len(response.Data) > 0 && response.Data[0].URL != "" {
+		service.Images.SaveImageWithUrl("./images", response.Data[0].URL)
+	}
+
+	ctrl.SendRsp(ctx, response)
+}
+
+func (c *chatCtrl) CheckRGBA(ctx *gin.Context) {
+	file1, _ := os.Open("./images/image_edit_mask.png")
+	file2, _ := os.Open("./images/5525b358-8e33-4aa7-b05c-5d6075790d04.png")
+
+	isTrue1, e1 := common.IsRGBAImage(file1)
+	isTrue2, e2 := common.IsRGBAImage(file2)
+
+	common.Logger.Infof("%s, %s, %s, %s", isTrue1, isTrue2, e1, e2)
 }

@@ -32,6 +32,7 @@ const (
 	CodeIsRefreshToken
 	CodeTokenConvertFail
 	CodeTokenCovered
+	CodeFileSizeOutOfLimit
 )
 
 var Desces = map[int]string{
@@ -57,8 +58,9 @@ var Desces = map[int]string{
 	CodeFileUploadFailed: "upload file failed",
 	CodeFileReadFailed:   "read file failed",
 
-	CodeTokenInvalid:     "token is invalid",
-	CodeIsRefreshToken:   "token is refresh token, can use as normal token",
-	CodeTokenConvertFail: "token convert fail",
-	CodeTokenCovered:     "token had been covered",
+	CodeTokenInvalid:       "token is invalid",
+	CodeIsRefreshToken:     "token is refresh token, can use as normal token",
+	CodeTokenConvertFail:   "token convert fail",
+	CodeTokenCovered:       "token had been covered",
+	CodeFileSizeOutOfLimit: "file size out of limit",
 }

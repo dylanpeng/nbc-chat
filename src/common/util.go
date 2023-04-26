@@ -1,6 +1,7 @@
 package common
 
 import (
+	"bufio"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -8,6 +9,8 @@ import (
 	"github.com/dylanpeng/nbc-chat/common/config"
 	"github.com/dylanpeng/nbc-chat/common/consts"
 	"github.com/gin-gonic/gin"
+	"image"
+	"io"
 	"runtime/debug"
 	"strings"
 )
@@ -74,4 +77,29 @@ func GetTraceId(ctx context.Context) string {
 	}
 
 	return ""
+}
+
+func IsRGBAImage(reader io.Reader) (isRGBA bool, err error) {
+	img, _, err := image.Decode(bufio.NewReader(reader))
+	if err != nil {
+		return false, err
+	}
+
+	// 判断是否是 RGBA 格式
+	isRGBA = true
+	bounds := img.Bounds()
+	for x := bounds.Min.X; x < bounds.Max.X; x++ {
+		for y := bounds.Min.Y; y < bounds.Max.Y; y++ {
+			_, _, _, a := img.At(x, y).RGBA()
+			if a != 65535 {
+				isRGBA = false
+				break
+			}
+		}
+		if !isRGBA {
+			break
+		}
+	}
+
+	return
 }

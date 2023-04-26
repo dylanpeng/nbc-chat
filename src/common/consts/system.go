@@ -6,6 +6,7 @@ const (
 	CtxValueAuth     = "context.value.auth.user"
 	CtxValueLanguage = "context.value.language"
 	CtxValueTraceId  = "context.value.trace.id"
+	CtxValueImage    = "context.value.image"
 )
 
 const (
@@ -19,4 +20,8 @@ const (
 	HeaderKeyDeviceId    = "Device_id"
 	HeaderKeyPackageName = "pn"
 	HeaderKeyTraceId     = "TraceId"
+)
+
+const (
+	SystemFileSizeLimit = 1024 * 1024 * 4
 )

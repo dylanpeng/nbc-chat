@@ -4,9 +4,13 @@ import (
 	"github.com/dylanpeng/golib/coder"
 	"github.com/dylanpeng/nbc-chat/common"
 	"github.com/dylanpeng/nbc-chat/common/consts"
+	ctrl "github.com/dylanpeng/nbc-chat/common/control"
+	"github.com/dylanpeng/nbc-chat/common/exception"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"net/http"
+	"path"
+	"strings"
 )
 
 func JsonCoder(ctx *gin.Context) {
@@ -49,6 +53,50 @@ func Trace(ctx *gin.Context) {
 	}
 
 	ctx.Set(consts.CtxValueTraceId, uuid.New().String())
+
+	ctx.Next()
+}
+
+func GetImage(ctx *gin.Context) {
+	fileHeader, e := ctx.FormFile("file")
+	if e != nil {
+		err := exception.New(exception.CodeQueryFailed)
+		common.Logger.Infof("GetImage FormFile failed. | err: %s", e)
+		ctrl.Exception(ctx, err)
+		return
+	}
+
+	//file, e := fileHeader.Open()
+	//if e != nil {
+	//	err := exception.New(exception.CodeQueryFailed)
+	//	common.Logger.Infof("GetImage Open failed. | err: %s", e)
+	//	ctrl.Exception(ctx, err)
+	//	return
+	//}
+
+	//if !common.IsRGBAImage(file) {
+	//	err := exception.New(exception.CodeQueryFailed)
+	//	common.Logger.Infof("GetImage Open failed. | err: %s", e)
+	//	ctrl.Exception(ctx, err)
+	//	return
+	//}
+
+	fileExt := strings.ToLower(path.Ext(fileHeader.Filename))
+	if fileExt != ".png" {
+		err := exception.New(exception.CodeQueryFailed)
+		common.Logger.Infof("GetImage not png failed. | err: %s", e)
+		ctrl.Exception(ctx, err)
+		return
+	}
+
+	if fileHeader.Size > consts.SystemFileSizeLimit {
+		err := exception.New(exception.CodeFileSizeOutOfLimit)
+		common.Logger.Infof("GetImage file size out of limit failed.")
+		ctrl.Exception(ctx, err)
+		return
+	}
+
+	ctx.Set(consts.CtxValueImage, fileHeader)
 
 	ctx.Next()
 }

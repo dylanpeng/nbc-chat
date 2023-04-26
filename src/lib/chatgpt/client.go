@@ -153,11 +153,16 @@ func (c *Client) getImageFormat(format string) string {
 	return openai.CreateImageResponseFormatURL
 }
 
-func (c *Client) CreateEditImage(ctx context.Context, image, mask *os.File, prompt, size string) (rsp openai.ImageResponse, err error) {
+func (c *Client) EditImage(ctx context.Context, imageFilePath, maskPath, prompt, size string) (rsp openai.ImageResponse, err error) {
 	conf := c.conf
 
+	imageFile, _ := os.Open(imageFilePath)
+	mask, _ := os.Open(maskPath)
+	defer imageFile.Close()
+	defer mask.Close()
+
 	req := openai.ImageEditRequest{
-		Image:  image,
+		Image:  imageFile,
 		Mask:   mask,
 		Prompt: prompt,
 		N:      conf.N,
@@ -169,7 +174,7 @@ func (c *Client) CreateEditImage(ctx context.Context, image, mask *os.File, prom
 	return
 }
 
-func (c *Client) CreateVariImage(ctx context.Context, image *os.File, size string) (rsp openai.ImageResponse, err error) {
+func (c *Client) VariationImage(ctx context.Context, image *os.File, size string) (rsp openai.ImageResponse, err error) {
 	conf := c.conf
 
 	req := openai.ImageVariRequest{
