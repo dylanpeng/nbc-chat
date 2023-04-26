@@ -20,6 +20,7 @@ type Config struct {
 	User             string         `toml:"user" json:"user"`
 	ProxyUrl         string         `toml:"proxy_url" json:"proxy_url"`
 	ApiKey           string         `toml:"api_key" json:"api_key"`
+	FileBasePath     string         `toml:"file_base_path" json:"file_base_path"`
 }
 
 type Client struct {
@@ -206,13 +207,13 @@ func (c *Client) CreateEmbeddings(ctx context.Context, input string) (rsp openai
 	return
 }
 
-func (c *Client) CreateTranscription(ctx context.Context, filePath, prompt string) (rsp openai.AudioResponse, err error) {
+func (c *Client) CreateTranscription(ctx context.Context, filePath, language string) (rsp openai.AudioResponse, err error) {
 	conf := c.conf
 
 	req := openai.AudioRequest{
-		Model:       "whisper-3",
+		Model:       "whisper-1",
 		FilePath:    filePath,
-		Prompt:      prompt,
+		Language:    language,
 		Temperature: conf.Temperature,
 	}
 
@@ -225,7 +226,7 @@ func (c *Client) CreateTranslation(ctx context.Context, filePath, prompt string)
 	conf := c.conf
 
 	req := openai.AudioRequest{
-		Model:       "whisper-3",
+		Model:       "whisper-1",
 		FilePath:    filePath,
 		Prompt:      prompt,
 		Temperature: conf.Temperature,

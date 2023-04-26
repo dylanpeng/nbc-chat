@@ -28,15 +28,27 @@ func (r *router) RegHttpHandler(app *gin.Engine) {
 		chatGroup.POST("/chat", control.Chat.Chat)
 		chatGroup.GET("/models/list", control.Chat.ListModels)
 		chatGroup.POST("/edits", control.Chat.Edits)
-		chatGroup.POST("/image/create", control.Chat.CreateImage)
-		chatGroup.POST("/image/edit", middleware.GetImage, control.Chat.EditImage)
-		chatGroup.POST("/image/variation", middleware.GetImage, control.Chat.VariationImage)
-		chatGroup.GET("/google", control.GoogleProxy.Google)
-		chatGroup.GET("/google/no-proxy", control.GoogleProxy.GoogleNoProxy)
+		chatGroup.POST("/embedding", control.Chat.Embedding)
+
 	}
 
-	testGroup := app.Group("/test")
+	imageGroup := app.Group("/chatgpt/image")
 	{
+		imageGroup.POST("/create", control.Image.CreateImage)
+		imageGroup.POST("/edit", middleware.GetImage, control.Image.EditImage)
+		imageGroup.POST("/variation", middleware.GetImage, control.Image.VariationImage)
+	}
+
+	audioGroup := app.Group("/chatgpt/audio")
+	{
+		audioGroup.POST("/transcription", control.Audio.CreateTranscription)
+		audioGroup.POST("/translation", control.Audio.CreateTranslation)
+	}
+
+	testGroup := app.Group("/chatgpt/test")
+	{
+		testGroup.GET("/google", control.GoogleProxy.Google)
+		testGroup.GET("/google/no-proxy", control.GoogleProxy.GoogleNoProxy)
 		testGroup.POST("/rgba", control.Chat.CheckRGBA)
 	}
 }

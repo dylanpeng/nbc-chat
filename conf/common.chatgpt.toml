@@ -9,3 +9,4 @@ frequency_penalty   = 0
 user                = ""
 proxy_url           = ""
 api_key             = "your api key"
+file_base_path      = "./images"

@@ -66,21 +66,6 @@ func GetImage(ctx *gin.Context) {
 		return
 	}
 
-	//file, e := fileHeader.Open()
-	//if e != nil {
-	//	err := exception.New(exception.CodeQueryFailed)
-	//	common.Logger.Infof("GetImage Open failed. | err: %s", e)
-	//	ctrl.Exception(ctx, err)
-	//	return
-	//}
-
-	//if !common.IsRGBAImage(file) {
-	//	err := exception.New(exception.CodeQueryFailed)
-	//	common.Logger.Infof("GetImage Open failed. | err: %s", e)
-	//	ctrl.Exception(ctx, err)
-	//	return
-	//}
-
 	fileExt := strings.ToLower(path.Ext(fileHeader.Filename))
 	if fileExt != ".png" {
 		err := exception.New(exception.CodeQueryFailed)

@@ -92,3 +92,8 @@ message VariationImageReq{
     // "small":256*256 "middle":512*512 "big":1024*1024
     string size = 2;
 }
+
+//HTTP POST request: /chatgpt/embedding
+message EmbeddingReq{
+    string input = 1;
+}
